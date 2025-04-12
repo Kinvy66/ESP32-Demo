@@ -1,0 +1,85 @@
+dependencies:
+  achimpieters/esp32-dht:
+    component_hash: e605fcdad07d9d9ad63fe14585b14bee8b4b6c7862247bf590cae44226f8e09c
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.0'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    targets:
+    - esp32
+    - esp32c2
+    - esp32c3
+    - esp32c5
+    - esp32c6
+    - esp32c61
+    - esp32s2
+    - esp32s3
+    version: 1.0.2
+  bblanchon/arduinojson:
+    component_hash: 463812931f99cb7a554d64311288f537b43daaca3eed2427557b907af393447c
+    dependencies: []
+    source:
+      registry_url: https://components.espressif.com
+      type: service
+    version: 6.21.5
+  espressif/ds18b20:
+    component_hash: 87a753636db56dbb42633b8fdd615c63c5e752ec9c9629e6386d8115f36efc30
+    dependencies:
+    - name: espressif/onewire_bus
+      registry_url: https://components.espressif.com
+      require: private
+      version: ^1.0.0
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 0.1.2
+  espressif/onewire_bus:
+    component_hash: c4c781940d8bd988432b47ac3ee68479c69e14e01fdfba0b61365b233a3ba5d6
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.0'
+    source:
+      registry_url: https://components.espressif.com
+      type: service
+    version: 1.0.2
+  idf:
+    source:
+      type: idf
+    version: 5.3.2
+  ningzixi/ws2812_control:
+    component_hash: f3fa7613564fb48ff18bb4a3dcc4c1e30e7cc05bf8bcc165cb7730a609566e78
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=4.4.7'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.2.0
+  thingsboard/thingsboard:
+    component_hash: 5ea11f90189806ed14e15c933511929278b0fc9838fd7a9a119ad3c33ade061d
+    dependencies:
+    - name: bblanchon/arduinojson
+      registry_url: https://components.espressif.com
+      require: private
+      version: ^6.21.5
+    - name: idf
+      require: private
+      version: '*'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 0.15.0
+direct_dependencies:
+- achimpieters/esp32-dht
+- espressif/ds18b20
+- idf
+- ningzixi/ws2812_control
+- thingsboard/thingsboard
+manifest_hash: 2d24d323ebba91931531d60dba143ac729c23fc45f779f915ca4293fad518012
+target: esp32s3
+version: 2.0.0
