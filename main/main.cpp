@@ -1,3 +1,6 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -6,6 +9,15 @@
 #include "driver/rmt_tx.h"
 #include "ws2812_control.h"
 #include "dht.h"
+#include "raindrop.h"
+#include "watersensor.h"
+#include "ds18b20_read.h"
+#include "waterquality.h"
+#include "windspeed.h"
+
+#ifdef __cplusplus
+}
+#endif
 
 #include <esp_netif.h>
 #include <esp_wifi.h>
@@ -14,17 +26,32 @@
 #include <Espressif_MQTT_Client.h>
 #include <ThingsBoard.h>
 
-
-#define WIFI_SSID "CMCC-3VQP"
-#define WIFI_PASSWORD "PDHP4MCD"
+/*******************************************/
+以下是 ThingsBoard 相关的配置，根据实际情况修改
+/*******************************************/
+// wifi 名称
+#define WIFI_SSID "CMCC-3VQP"  
+// wifi 密码         
+#define WIFI_PASSWORD "123456"
+// ThingsBoard 设备 token
 #define TOKEN "EUB9awCOjfBa9Cfak6dd"
+// ThingsBoard 服务器地址
 #define THINGSBOARD_SERVER "192.168.1.4"
+
+
+
 #define THINGSBOARD_PORT 1883U
 
 #define LED_GPIO  GPIO_NUM_14
 
 constexpr char TEMPERATURE_KEY[] = "temperature";
 constexpr char HUMIDITY_KEY[] = "humidity";
+constexpr char RAINDROP[] = "raindrop";
+constexpr char WATERLEVEL[] = "waterlevel";
+constexpr char DS18B20[] = "temperature_ds18b20";
+constexpr char WATERQUALITY[] = "waterquality";
+constexpr char WINDSPEED[] = "windspeed";
+
 
 constexpr uint16_t MAX_MESSAGE_SEND_SIZE = 128U;
 constexpr uint16_t MAX_MESSAGE_RECEIVE_SIZE = 128U;
@@ -72,7 +99,7 @@ void InitWiFi() {
   }
 
 
-static const char *TAG = "example_main";
+static const char *DHT_TAG = "DHT-22";
 
 
 #ifdef __cplusplus
@@ -134,7 +161,16 @@ void app_main(void)
     //      }
 
     //      vTaskDelay(pdMS_TO_TICKS(2000)); // Delay for 2 seconds
+
     //  }
+
+    raindrop_gpio_config();
+    watersensor_gpio_config();
+    waterquality_gpio_config();
+    windspeed_gpio_config();
+
+    ds18b20_sensor_detect();
+
 
     ESP_LOGI("MAIN", "[APP] Startup..");
     ESP_LOGI("MAIN", "[APP] Free memory: %" PRIu32 " bytes", esp_get_free_heap_size());
@@ -164,22 +200,42 @@ void app_main(void)
         }
 
         float humidity = 0, temperature = 0;
+        unsigned int radrop = 0, waterlevel = 0;
+        float ds18b20_temperature = 0.0;
+        float tds_value = 0.0;
+        float windspeed_value = 0.0;
 
         esp_err_t result = dht_read_float_data(sensor_type, gpio_num, &humidity, &temperature);
         if (result == ESP_OK)
         {
-            ESP_LOGI(TAG, "Humidity: %.1f%% Temperature: %.1f°C", humidity, temperature);
+            ESP_LOGI(DHT_TAG, "Humidity: %.1f%% Temperature: %.1f°C", humidity, temperature);
         }
         else
         {
-            ESP_LOGE(TAG, "Failed to read sensor data: %s", esp_err_to_name(result));
+            ESP_LOGE(DHT_TAG, "Failed to read sensor data: %s", esp_err_to_name(result));
         }
+
+        radrop = get_raindrop_percentage_value();
+        waterlevel = get_watersensor_percentage_value();
+        ds18b20_temperature = ds18b20_sensor_read();
+        tds_value = get_waterquality_tds_value();
+        windspeed_value = get_windspeed_value();
+
+        ESP_LOGI("ADC Sensor", "RainDrop: %d%% WaterLevel %d%%", radrop, waterlevel);
+        ESP_LOGI("DS18B20", "Temperature: %.1f°C", ds18b20_temperature);
+        ESP_LOGI("WaterQuality", "TDS: %.1f ppm", tds_value);
+        ESP_LOGI("WindSpeed", "WindSpeed: %.1f m/s", windspeed_value);
+
 
         tb.sendTelemetryData(TEMPERATURE_KEY, temperature);
         tb.sendTelemetryData(HUMIDITY_KEY, humidity);
+        tb.sendTelemetryData(RAINDROP, radrop);
+        tb.sendTelemetryData(WATERLEVEL, waterlevel);
+        tb.sendTelemetryData(DS18B20, ds18b20_temperature); 
+        tb.sendTelemetryData(WATERQUALITY, tds_value);
+        tb.sendTelemetryData(WINDSPEED, windspeed_value);
 
         tb.loop();
-
 
         vTaskDelay(pdMS_TO_TICKS(3000)); // Delay for 2 seconds
 

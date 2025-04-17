@@ -1,4 +1,4 @@
-#include "bsp_raindrop.h"
+#include "raindrop.h"
 
 esp_adc_cal_characteristics_t *adc_chars;
 
@@ -51,7 +51,7 @@ void raindrop_gpio_config(void)
  * 作       者：LC
  * 备       注：无
 **********************************************************/
-unsigned int get_adc_value(uint8_t channel_X)
+static unsigned int get_adc_value(uint8_t channel_X)
 {
     unsigned int adc_value = 0;
 

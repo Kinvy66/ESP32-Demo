@@ -1,5 +1,5 @@
-#ifndef _BSP_RAINDROP_H__
-#define _BSP_RAINDROP_H__
+#ifndef _RAINDROP_H__
+#define _RAINDROP_H__
 
 #include <stdio.h>
 #include <inttypes.h>
